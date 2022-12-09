@@ -4,7 +4,7 @@ defmodule Aoc2022.Day02 do
       {:ok, content} ->
         content
         |> String.split("\n")
-        |> Enum.reduce(0, fn x, acc -> Aoc2022.Day02.eval_line(x) + acc end)
+        |> Enum.reduce(0, fn x, acc -> eval_line(x) + acc end)
     end
   end
 
