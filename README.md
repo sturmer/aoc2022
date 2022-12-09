@@ -1,21 +1,11 @@
-# Aoc2022
+# Advent of code 2022
 
-**TODO: Add description**
+To bootstrap the project, I ran `mix new aoc2022` (I'd have preferred using a dash but Mix doesn't
+allow that 🤷🏻).
 
-## Installation
+That creates `lib/`, `test/` and a few other things. Then I copied the structure from my own AOC
+2020 and made `day01.ex`. The `input/` directory creation is also my own hard (hah) work.
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `aoc2022` to your list of dependencies in `mix.exs`:
-
-```elixir
-def deps do
-  [
-    {:aoc2022, "~> 0.1.0"}
-  ]
-end
-```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/aoc2022>.
-
+Then run tests with `mix test`. And do some `iex`. Today I'm very rusty with Elixir so I couldn't
+remember almost any function. If I keep it up for a few days I may remember a thing or two of this
+nice language!
