@@ -9,3 +9,6 @@ That creates `lib/`, `test/` and a few other things. Then I copied the structure
 Then run tests with `mix test`. And do some `iex`. Today I'm very rusty with Elixir so I couldn't
 remember almost any function. If I keep it up for a few days I may remember a thing or two of this
 nice language!
+
+## Import modules into iex
+Just start iex as `iex -S mix` then e.g. `import Aoc2022.Day01`.
