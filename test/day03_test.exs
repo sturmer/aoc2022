@@ -12,6 +12,6 @@ defmodule Day03Test do
 
   test "part 2" do
     assert solve_part_two("input/day03.sample.txt") == 70
-    assert solve_part_two("input/day03.txt") == 7980
+    assert solve_part_two("input/day03.txt") == 2881
   end
 end
