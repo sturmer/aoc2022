@@ -13,10 +13,14 @@ defmodule Day07 do
     end
   end
 
+  # TODO(gianluca): Parse into a graph (see graph_node.ex) and use size.
   @doc """
-    Transforms the list of instructions into an Elixir map. Each node's value in the map is either
-    a size (for files) or another map (for directories). Fox example, the parsing of day07.sample.txt
-    is:
+
+
+
+    ```
+
+    was:
     ```
       %{
         "/" => %{
@@ -80,7 +84,7 @@ defmodule Day07 do
     end
   end
 
-  def parse_instruction([], _stack, graph, dir_paths) do
+  def parse_instruction([], _stack, graph, _dir_paths) do
     IO.write("final graph: ")
     IO.inspect(graph)
 
@@ -108,61 +112,5 @@ defmodule Day07 do
     Map.has_key?(sizes, n)
   end
 
-  # FIXME(gianluca):
-  @doc """
-    What's the size of path?
 
-    A `path` is an array of the directory making up the path, e.g. `["/", "a", "b", "c"]` mean
-    "/a/b/c".
-    `graph` is the whole map of directories and children.
-    `children` is a map between a path and its direct children.
-    `sizes` is a map between a directory and its size.
-
-    iex> Day07.compute_size(["/"], %{
-    ...>    "/" => %{
-    ...>      "a" => %{"e" => %{"i" => 584}, "f" => 29116, "g" => 2557, "h.lst" => 62596},
-    ...>      "b.txt" => 14848514,
-    ...>      "c.dat" => 8504156,
-    ...>      "d" => %{
-    ...>        "d.ext" => 5626152,
-    ...>        "d.log" => 8033020,
-    ...>        "j" => 4060174,
-    ...>        "k" => 7214296
-    ...>      }
-    ...>    }
-    ...>  }, %{
-    ...>    ["/"] => ["a", "b.txt", "c.dat", "d"],
-    ...>    ["/", "a"] => ["e", "f", "g", "h.lst"],
-    ...>    ["/", "a", "e"] => ["i"],
-    ...>    ["/", "d"] => ["d.ext", "d.log", "j", "k"]
-    ...>  }, %{})
-    %{["/"] => 48381165}
-  """
-  def compute_size(path, graph, children, sizes) do
-    if is_nil(Map.get(children, path)) do
-      # TODO(gianluca): Remove when done
-      IO.puts("""
-      \n------------@@@> #{__MODULE__} | #{elem(__ENV__.function, 0)}:#{__ENV__.line}
-      ------ get_in(graph, path): #{inspect get_in(graph, path), pretty: true}
-      """)
-      # Map.put(sizes, path, get_in(graph, path))
-      get_in(graph, path)
-    else
-      # TODO(gianluca): Remove when done
-      IO.puts(" --------- #{__MODULE__}.#{elem(__ENV__.function, 0)}:#{__ENV__.line} I AM CALLED")
-
-      # TODO(gianluca): Remove when done
-      IO.puts("""
-      \n------------@@@> #{__MODULE__} | #{elem(__ENV__.function, 0)}:#{__ENV__.line}
-      - Map.get(children, path): #{inspect Map.get(children, path), pretty: true}
-      """)
-
-
-      size =
-        Enum.reduce(Map.get(children, path), fn c, acc ->
-          acc + compute_size(path ++ [c], graph, children, sizes)
-        end)
-      Map.put(sizes, path, size)
-    end
-  end
 end
