@@ -18,7 +18,7 @@ defmodule Day07 do
 
   def add_smaller_sizes(graph) do
     graph
-    |> Enum.map(fn ({vertex, node}) ->
+    |> Enum.map(fn {vertex, node} ->
       unless Enum.empty?(node.children) do
         GraphNode.size(vertex, graph)
       else
@@ -33,10 +33,6 @@ defmodule Day07 do
 
   def parse_instruction([first_instruction | rest], stack, graph) do
     case String.split(first_instruction) do
-      ["$", "cd", "/"] ->
-        # FIXME(gianluca): This is very ad-hoc and we shouldn't need it.
-        parse_instruction(rest, ["/"], %{"/" => %GraphNode{label: "/", size: nil, children: []}})
-
       ["$", "cd", ".."] ->
         new_stack =
           stack
@@ -109,10 +105,14 @@ defmodule Day07 do
   end
 
   def add_child(stack, graph, child) do
-    # TODO(gianluca): problem if stack is empty!
     cur_dir = Enum.at(stack, -1)
-    cur_dir_node = Map.get(graph, cur_dir)
-    updated_cur_dir_node = %{cur_dir_node | children: cur_dir_node.children ++ [child]}
-    Map.put(graph, cur_dir, updated_cur_dir_node)
+
+    unless is_nil(cur_dir) do
+      cur_dir_node = Map.get(graph, cur_dir)
+      updated_cur_dir_node = %{cur_dir_node | children: cur_dir_node.children ++ [child]}
+      Map.put(graph, cur_dir, updated_cur_dir_node)
+    else
+      graph
+    end
   end
 end
