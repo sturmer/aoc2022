@@ -40,7 +40,7 @@ defmodule GraphNode do
   @doc """
     A more compact representation.
 
-    iex> GraphNode.to_s(%GraphNode{label: "A", size: 0, children: ["B","C"]})
+    iex> GraphNode.to_s(%GraphNode{label: "A", size: nil, children: ["B","C"]})
     "A(B,C)"
   """
   def to_s(node) do
@@ -52,6 +52,14 @@ defmodule GraphNode do
         end
       end)
 
-    "#{node.label}(#{children_string})"
+      size_string = node.size
+
+      details = if is_nil(size_string) do
+        children_string
+      else
+        size_string
+      end
+
+    "#{node.label}(#{details})"
   end
 end

@@ -2,115 +2,117 @@ defmodule Day07 do
   def solve(file, part) do
     fun =
       case part do
-        :one -> &parse_instruction/4
+        :one -> &parse_instruction/3
       end
+
+    compute = &add_smaller_sizes/1
 
     case File.read(file) do
       {:ok, content} ->
         content
         |> String.split("\n", trim: true)
-        |> fun.([], %{}, MapSet.new())
+        |> fun.([], %{})
+        |> compute.()
     end
   end
 
-  # TODO(gianluca): Parse into a graph (see graph_node.ex) and use size.
-  @doc """
+  def add_smaller_sizes(graph) do
+    graph
+    |> Enum.map(fn ({vertex, node}) ->
+      unless Enum.empty?(node.children) do
+        GraphNode.size(vertex, graph)
+      else
+        # Don't consider files (nodes with no children)
+        0
+      end
+    end)
+    |> Enum.filter(fn sz -> sz <= 100_000 end)
+    # |> IO.inspect
+    |> Enum.reduce(fn x, acc -> acc + x end)
+  end
 
-
-
-    ```
-
-    was:
-    ```
-      %{
-        "/" => %{
-          "a" => %{"e" => %{"i" => 584}, "f" => 29116, "g" => 2557, "h.lst" => 62596},
-          "b.txt" => 14848514,
-          "c.dat" => 8504156,
-          "d" => %{
-            "d.ext" => 5626152,
-            "d.log" => 8033020,
-            "j" => 4060174,
-            "k" => 7214296
-          }
-        }
-      }
-    ```
-
-    As a side-effect, it produces paths to directories inside dir_paths:
-    ```
-    #MapSet<[["/"], ["/", "a"], ["/", "a", "e"], ["/", "d"]]>
-    ```
-  """
-  def parse_instruction([first_instruction | rest], stack, graph, dir_paths) do
+  def parse_instruction([first_instruction | rest], stack, graph) do
     case String.split(first_instruction) do
+      ["$", "cd", "/"] ->
+        # FIXME(gianluca): This is very ad-hoc and we shouldn't need it.
+        parse_instruction(rest, ["/"], %{"/" => %GraphNode{label: "/", size: nil, children: []}})
+
       ["$", "cd", ".."] ->
         new_stack =
           stack
           |> List.pop_at(-1)
           |> elem(1)
 
-        parse_instruction(rest, new_stack, graph, dir_paths)
+        parse_instruction(rest, new_stack, graph)
 
       ["$", "cd", x] ->
+        # FIXME(gianluca): This does the same as ["dir", dir_name]! BUT it adds the dir to the stack.
+        node = get_in(graph, [x])
+
         new_graph =
-          if is_nil(get_in(graph, stack ++ [x])) do
-            # IO.puts("Attaching directory #{x} to current node")
-            put_in(graph, stack ++ [x], %{})
+          if is_nil(node) do
+            # IO.puts("Attaching directory `#{x}` to current node")
+
+            # Do two things:
+            # 1. create new vertex in the graph
+            # 2. add the new vertex's label to the children of the deepest directory in the stack
+            new_vertex = %GraphNode{label: "#{x}", size: nil, children: []}
+            graph_with_new_vertex = put_in(graph, [x], new_vertex)
+
+            add_child(stack, graph_with_new_vertex, x)
           else
             graph
           end
 
-        parse_instruction(rest, stack ++ [x], new_graph, MapSet.put(dir_paths, stack ++ [x]))
+        parse_instruction(rest, stack ++ [x], new_graph)
 
       ["$", "ls"] ->
-        parse_instruction(rest, stack, graph, dir_paths)
+        # Just skip.
+        parse_instruction(rest, stack, graph)
 
       ["dir", dir_name] ->
-        # IO.puts("Attaching directory #{dir_name} to current node")
+        # IO.puts("Attaching directory `#{dir_name}` to current node")
+        node = get_in(graph, [dir_name])
+
         new_graph =
-          if is_nil(get_in(graph, stack ++ [dir_name])) do
-            put_in(graph, stack ++ [dir_name], %{})
+          if is_nil(node) do
+            new_vertex = %GraphNode{label: "#{dir_name}", size: nil, children: []}
+            graph_with_new_vertex = put_in(graph, [dir_name], new_vertex)
+
+            add_child(stack, graph_with_new_vertex, dir_name)
           else
             graph
           end
 
-        parse_instruction(rest, stack, new_graph, MapSet.put(dir_paths, stack ++ [dir_name]))
+        parse_instruction(rest, stack, new_graph)
 
       [size, file_name] ->
         # IO.puts("#{file_name} has size #{String.to_integer(size)}")
-        new_graph = put_in(graph, stack ++ [file_name], String.to_integer(size))
-        parse_instruction(rest, stack, new_graph, dir_paths)
+        graph_with_new_vertex =
+          put_in(graph, [file_name], %GraphNode{
+            label: file_name,
+            size: String.to_integer(size),
+            children: []
+          })
+
+        new_graph = add_child(stack, graph_with_new_vertex, file_name)
+
+        parse_instruction(rest, stack, new_graph)
     end
   end
 
-  def parse_instruction([], _stack, graph, _dir_paths) do
-    IO.write("final graph: ")
-    IO.inspect(graph)
+  def parse_instruction([], _stack, graph) do
+    # IO.write("final graph: ")
+    # IO.inspect(graph)
 
-    res = 0 #compute_size(graph, dir_paths, MapSet.new(), %{})
-
-    IO.write("res: ")
-    IO.inspect(res)
-
-    res
+    graph
   end
 
-  @doc """
-    A `path` is an array of the directory making up the path, e.g. `["/", "a", "b", "c"]` mean
-    "/a/b/c".
-
-    `n` is a path.
-    `sizes` is a map `path => size`.
-
-    iex> Day07.processed?(["a", "b", "c"], %{["a", "b", "c"] => 1})
-    true
-    iex> Day07.processed?(["a", "b"], %{["a", "b", "c"] => 1})
-    false
-  """
-  def processed?(n, sizes) do
-    Map.has_key?(sizes, n)
+  def add_child(stack, graph, child) do
+    # TODO(gianluca): problem if stack is empty!
+    cur_dir = Enum.at(stack, -1)
+    cur_dir_node = Map.get(graph, cur_dir)
+    updated_cur_dir_node = %{cur_dir_node | children: cur_dir_node.children ++ [child]}
+    Map.put(graph, cur_dir, updated_cur_dir_node)
   end
-
-
 end

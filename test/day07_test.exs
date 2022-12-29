@@ -3,11 +3,11 @@ defmodule Day07Test do
   doctest Day07
   import Day07
 
-  test "parse_instruction" do
-    solve("input/day07.sample.txt", :one)
+  test "can solve part 1 sample" do
+    assert solve("input/day07.sample.txt", :one) == 95_437
   end
 
   test "part 1" do
-
+    assert solve("input/day07.txt", :one) == 859_613
   end
 end
