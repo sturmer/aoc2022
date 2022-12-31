@@ -1,5 +1,5 @@
 defmodule GraphNode do
-  defstruct [:label, size: nil, children: []]
+  defstruct [size: nil, children: []]
 
   @doc """
     A graph is just a map label => node struct.
@@ -14,16 +14,16 @@ defmodule GraphNode do
   end
 
   @doc """
-    iex> GraphNode.add_child(%GraphNode{label: "A", size: 0, children: ["B", "C"]}, "D")
-    %GraphNode{label: "A", size: 0, children: ["B", "C", "D"]}
+    iex> GraphNode.add_child(%GraphNode{size: 0, children: ["B", "C"]}, "D")
+    %GraphNode{size: 0, children: ["B", "C", "D"]}
   """
   def add_child(node, child) do
     %{node | children: node.children ++ [child]}
   end
 
   @doc """
-    iex> GraphNode.to_string(%GraphNode{label: "A", size: nil, children: ["B", "C"]})
-    "A (size: nil) -> [B, C]"
+    iex> GraphNode.to_string(%GraphNode{size: nil, children: ["B", "C"]})
+    "(size: nil) -> [B, C]"
   """
   def to_string(node) do
     children_string =
@@ -34,14 +34,14 @@ defmodule GraphNode do
         end
       end)
 
-    "#{node.label} (size: #{node.size || "nil"}) -> [#{children_string}]"
+    "(size: #{node.size || "nil"}) -> [#{children_string}]"
   end
 
   @doc """
     A more compact representation.
 
-    iex> GraphNode.to_s(%GraphNode{label: "A", size: nil, children: ["B","C"]})
-    "A(B,C)"
+    iex> GraphNode.to_s(%GraphNode{size: nil, children: ["B","C"]})
+    "(B,C)"
   """
   def to_s(node) do
     children_string =
@@ -52,14 +52,23 @@ defmodule GraphNode do
         end
       end)
 
-      size_string = node.size
+    size_string = node.size
 
-      details = if is_nil(size_string) do
-        children_string
+    details =
+      if is_nil(size_string) do
+        "(#{children_string})"
       else
         size_string
       end
 
-    "#{node.label}(#{details})"
+    "#{details}"
+  end
+
+  def new() do
+    %GraphNode{size: nil, children: []}
+  end
+
+  def new(size) do
+    %GraphNode{size: String.to_integer(size), children: []}
   end
 end

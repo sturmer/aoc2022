@@ -3,11 +3,11 @@ defmodule GraphNodeTest do
   doctest GraphNode
 
   @graph %{
-    a: %GraphNode{label: :a, size: nil, children: [:b]},
-    b: %GraphNode{label: :b, size: nil, children: [:c, :d]},
-    c: %GraphNode{label: :c, size: 100, children: []},
-    d: %GraphNode{label: :d, size: nil, children: [:e]},
-    e: %GraphNode{label: :e, size: 200, children: []}
+    a: %GraphNode{size: nil, children: [:b]},
+    b: %GraphNode{size: nil, children: [:c, :d]},
+    c: %GraphNode{size: 100, children: []},
+    d: %GraphNode{size: nil, children: [:e]},
+    e: %GraphNode{size: 200, children: []}
   }
 
   test "can measure size" do
@@ -27,7 +27,7 @@ defmodule GraphNodeTest do
   test "it will count twice a file if it appears with two parent directories" do
     graph = %{
       @graph
-      | a: %GraphNode{label: "a", size: nil, children: [:b, :d]}
+      | a: %GraphNode{size: nil, children: [:b, :d]}
     }
 
     assert GraphNode.size(:a, graph) == 500
@@ -38,22 +38,23 @@ defmodule GraphNodeTest do
   """
   test "example from part 1 computes sizes correctly" do
     graph = %{
-      "/" => %GraphNode{label: "/", size: nil, children: ["a", "b.txt", "c.dat", "d"]},
-      "a" => %GraphNode{label: "a", size: nil, children: ["e", "f", "g", "h.lst"]},
-      "e" => %GraphNode{label: "e", size: nil, children: ["i"]},
-      "i" => %GraphNode{label: "i", size: 584, children: []},
-      "f" => %GraphNode{label: "f", size: 29116, children: []},
-      "g" => %GraphNode{label: "g", size: 2557, children: []},
-      "h.lst" => %GraphNode{label: "h.lst", size: 62596, children: []},
-      "b.txt" => %GraphNode{label: "b.txt", size: 14_848_514, children: []},
-      "c.dat" => %GraphNode{label: "c.dat", size: 8_504_156, children: []},
-      "d" => %GraphNode{label: "d", size: nil, children: ["d.ext", "d.log", "j", "k"]},
-      "d.ext" => %GraphNode{label: "d.ext", size: 5_626_152, children: []},
-      "d.log" => %GraphNode{label: "d.log", size: 8_033_020, children: []},
-      "j" => %GraphNode{label: "j", size: 4_060_174, children: []},
-      "k" => %GraphNode{label: "k", size: 7_214_296, children: []}
+      "/" => %GraphNode{size: nil, children: ["a", "b.txt", "c.dat", "d"]},
+      "a" => %GraphNode{size: nil, children: ["e", "f", "g", "h.lst"]},
+      "e" => %GraphNode{size: nil, children: ["i"]},
+      "i" => %GraphNode{size: 584, children: []},
+      "f" => %GraphNode{size: 29116, children: []},
+      "g" => %GraphNode{size: 2557, children: []},
+      "h.lst" => %GraphNode{size: 62596, children: []},
+      "b.txt" => %GraphNode{size: 14_848_514, children: []},
+      "c.dat" => %GraphNode{size: 8_504_156, children: []},
+      "d" => %GraphNode{size: nil, children: ["d.ext", "d.log", "j", "k"]},
+      "d.ext" => %GraphNode{size: 5_626_152, children: []},
+      "d.log" => %GraphNode{size: 8_033_020, children: []},
+      "j" => %GraphNode{size: 4_060_174, children: []},
+      "k" => %GraphNode{size: 7_214_296, children: []}
     }
 
+    assert GraphNode.size("i", graph) == 584
     assert GraphNode.size("e", graph) == 584
     assert GraphNode.size("a", graph) == 94853
     assert GraphNode.size("d", graph) == 24_933_642
