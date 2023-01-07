@@ -65,10 +65,10 @@ defmodule GraphNode do
   end
 
   def new() do
-    %GraphNode{size: nil, children: []}
+    struct(GraphNode, %{size: nil, children: []})
   end
 
   def new(size) do
-    %GraphNode{size: String.to_integer(size), children: []}
+    struct(GraphNode, %{size: String.to_integer(size), children: []})
   end
 end
