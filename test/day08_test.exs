@@ -16,10 +16,10 @@ defmodule Day08Test do
   end
 
   test "can solve part 2 sample" do
-
+    assert solve("input/day08.sample.txt", :two) == 8
   end
 
   test "part 2" do
-
+    assert solve("input/day08.txt", :two) == 8
   end
 end
